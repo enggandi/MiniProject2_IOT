@@ -1,0 +1,59 @@
+#include <Arduino.h>
+#include <DHT.h>
+#include <Adafruit_Sensor.h>
+
+int red=0,yellow=4,green=5,button=16,dht=2;
+bool onOff=false;
+float temperatur=0.0;
+DHT sensor(dht, DHT11);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(dht,INPUT_PULLUP);
+  pinMode(red,OUTPUT);
+  pinMode(yellow,OUTPUT);
+  pinMode(green,OUTPUT);
+  pinMode(button,INPUT);
+  sensor.begin();
+}
+
+void loop() {
+  if(digitalRead(button)){
+    if(onOff){
+      onOff=false;
+      Serial.println("Off");
+    }
+    else{
+      onOff=true;
+      Serial.println("On");
+    }
+    delay(500);
+  }
+  if(onOff){
+    float t=sensor.readTemperature();
+    if(!isnan(t)){
+      temperatur=t;
+    }
+    if(temperatur>50){
+      digitalWrite(green,HIGH);
+      digitalWrite(yellow,HIGH);
+      digitalWrite(red,HIGH);
+    }
+    else if(temperatur>=35){
+      digitalWrite(green,HIGH);
+      digitalWrite(yellow,HIGH);
+      digitalWrite(red,LOW);
+    }
+    else if(temperatur<35){
+      digitalWrite(green,HIGH);
+      digitalWrite(yellow,LOW);
+      digitalWrite(red,LOW);
+    }
+    Serial.println(temperatur);
+  }
+  else{
+    digitalWrite(red,LOW);
+    digitalWrite(yellow,LOW);
+    digitalWrite(green,LOW);
+  }
+}
